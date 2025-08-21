@@ -27,15 +27,15 @@ export default function Header() {
             <nav className="hidden md:ml-10 md:flex space-x-8">
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <a
-                    className={`transition-colors ${
+                  <span
+                    className={`transition-colors cursor-pointer ${
                       location === item.href
                         ? "text-primary font-medium"
                         : "text-slate-700 hover:text-primary"
                     }`}
                   >
                     {item.label}
-                  </a>
+                  </span>
                 </Link>
               ))}
             </nav>
@@ -71,8 +71,8 @@ export default function Header() {
             <nav className="flex flex-col space-y-2">
               {navItems.map((item) => (
                 <Link key={item.href} href={item.href}>
-                  <a
-                    className={`block px-3 py-2 rounded-md transition-colors ${
+                  <span
+                    className={`block px-3 py-2 rounded-md transition-colors cursor-pointer ${
                       location === item.href
                         ? "text-primary bg-blue-50 font-medium"
                         : "text-slate-700 hover:text-primary hover:bg-slate-50"
@@ -80,7 +80,7 @@ export default function Header() {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {item.label}
-                  </a>
+                  </span>
                 </Link>
               ))}
             </nav>

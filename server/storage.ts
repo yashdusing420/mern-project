@@ -155,7 +155,13 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id, createdAt: new Date() };
+    const user: User = { 
+      ...insertUser, 
+      id, 
+      createdAt: new Date(),
+      address: insertUser.address || null,
+      phone: insertUser.phone || null
+    };
     this.users.set(id, user);
     return user;
   }
@@ -170,7 +176,13 @@ export class MemStorage implements IStorage {
 
   async createServiceCategory(insertCategory: InsertServiceCategory): Promise<ServiceCategory> {
     const id = randomUUID();
-    const category: ServiceCategory = { ...insertCategory, id };
+    const category: ServiceCategory = { 
+      ...insertCategory, 
+      id,
+      description: insertCategory.description || null,
+      rating: insertCategory.rating || null,
+      reviewCount: insertCategory.reviewCount || null
+    };
     this.serviceCategories.set(id, category);
     return category;
   }
@@ -189,7 +201,11 @@ export class MemStorage implements IStorage {
 
   async createService(insertService: InsertService): Promise<Service> {
     const id = randomUUID();
-    const service: Service = { ...insertService, id };
+    const service: Service = { 
+      ...insertService, 
+      id,
+      isActive: insertService.isActive ?? true
+    };
     this.services.set(id, service);
     return service;
   }
@@ -210,7 +226,15 @@ export class MemStorage implements IStorage {
 
   async createProfessional(insertProfessional: InsertProfessional): Promise<Professional> {
     const id = randomUUID();
-    const professional: Professional = { ...insertProfessional, id };
+    const professional: Professional = { 
+      ...insertProfessional, 
+      id,
+      rating: insertProfessional.rating || null,
+      reviewCount: insertProfessional.reviewCount || null,
+      profileImage: insertProfessional.profileImage || null,
+      isVerified: insertProfessional.isVerified ?? false,
+      isActive: insertProfessional.isActive ?? true
+    };
     this.professionals.set(id, professional);
     return professional;
   }
@@ -229,7 +253,13 @@ export class MemStorage implements IStorage {
 
   async createBooking(insertBooking: InsertBooking): Promise<Booking> {
     const id = randomUUID();
-    const booking: Booking = { ...insertBooking, id, createdAt: new Date() };
+    const booking: Booking = { 
+      ...insertBooking, 
+      id, 
+      createdAt: new Date(),
+      status: insertBooking.status || "pending",
+      notes: insertBooking.notes || null
+    };
     this.bookings.set(id, booking);
     return booking;
   }
