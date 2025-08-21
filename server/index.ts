@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { exec } from "child_process";
 
 const app = express();
 app.use(express.json());
@@ -67,5 +68,29 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    
+    // Auto-open browser in development
+    if (process.env.NODE_ENV === "development") {
+      const url = `http://localhost:${port}`;
+      log(`Opening browser at ${url}`);
+      
+      // Cross-platform browser opening
+      const platform = process.platform;
+      let command;
+      
+      if (platform === 'win32') {
+        command = `start ${url}`;
+      } else if (platform === 'darwin') {
+        command = `open ${url}`;
+      } else {
+        command = `xdg-open ${url}`;
+      }
+      
+      exec(command, (error) => {
+        if (error) {
+          log(`Manual browser opening required: ${url}`);
+        }
+      });
+    }
   });
 })();
