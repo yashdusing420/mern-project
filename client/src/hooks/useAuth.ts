@@ -42,7 +42,10 @@ export function useAuth() {
       return await response.json();
     },
     onSuccess: () => {
+      // Clear all auth-related cache and set user to null immediately
+      queryClient.setQueryData(["/api/auth/user"], null);
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.clear(); // Clear all cached data for fresh start
     },
   });
 
