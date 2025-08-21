@@ -1,7 +1,33 @@
-import { type User, type InsertUser, type ServiceCategory, type InsertServiceCategory, type Service, type InsertService, type Professional, type InsertProfessional, type Booking, type InsertBooking } from "@shared/schema";
+import { 
+  users, 
+  serviceCategories, 
+  services, 
+  professionals, 
+  bookings,
+  type User, 
+  type InsertUser, 
+  type ServiceCategory, 
+  type InsertServiceCategory, 
+  type Service, 
+  type InsertService, 
+  type Professional, 
+  type InsertProfessional, 
+  type Booking, 
+  type InsertBooking, 
+  type LoginRequest, 
+  type RegisterRequest 
+} from "@shared/schema";
 import { randomUUID } from "crypto";
+import bcrypt from "bcryptjs";
+import { eq } from "drizzle-orm";
+import { db } from "./db";
 
 export interface IStorage {
+  // Authentication
+  authenticateUser(credentials: LoginRequest): Promise<User | null>;
+  registerUser(userData: RegisterRequest): Promise<User>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+
   // Users
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -32,7 +58,8 @@ export interface IStorage {
   updateBookingStatus(id: string, status: string): Promise<Booking | undefined>;
 }
 
-export class MemStorage implements IStorage {
+export class MemStorage {
+  // Note: MemStorage no longer implements IStorage since we added auth methods
   private users: Map<string, User> = new Map();
   private serviceCategories: Map<string, ServiceCategory> = new Map();
   private services: Map<string, Service> = new Map();
@@ -275,4 +302,122 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  // Authentication methods
+  async authenticateUser(credentials: LoginRequest): Promise<User | null> {
+    const user = await this.getUserByEmail(credentials.email);
+    if (!user) return null;
+
+    const isValid = await bcrypt.compare(credentials.password, user.password);
+    return isValid ? user : null;
+  }
+
+  async registerUser(userData: RegisterRequest): Promise<User> {
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    
+    const [user] = await db.insert(users).values({
+      username: userData.username,
+      email: userData.email,
+      password: hashedPassword,
+      phone: userData.phone || null,
+      address: userData.address || null,
+    }).returning();
+
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  // User methods
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const hashedPassword = await bcrypt.hash(insertUser.password, 10);
+    const [user] = await db.insert(users).values({
+      ...insertUser,
+      password: hashedPassword,
+    }).returning();
+    return user;
+  }
+
+  // Keep all existing MemStorage methods for service categories, services, professionals, bookings
+  // We'll use database for users and authentication, but keep in-memory for demo data
+  private memStorage = new MemStorage();
+
+  async getServiceCategories(): Promise<ServiceCategory[]> {
+    return this.memStorage.getServiceCategories();
+  }
+
+  async getServiceCategory(id: string): Promise<ServiceCategory | undefined> {
+    return this.memStorage.getServiceCategory(id);
+  }
+
+  async createServiceCategory(category: InsertServiceCategory): Promise<ServiceCategory> {
+    return this.memStorage.createServiceCategory(category);
+  }
+
+  async getServices(): Promise<Service[]> {
+    return this.memStorage.getServices();
+  }
+
+  async getServicesByCategory(categoryId: string): Promise<Service[]> {
+    return this.memStorage.getServicesByCategory(categoryId);
+  }
+
+  async getService(id: string): Promise<Service | undefined> {
+    return this.memStorage.getService(id);
+  }
+
+  async createService(service: InsertService): Promise<Service> {
+    return this.memStorage.createService(service);
+  }
+
+  async getProfessionals(): Promise<Professional[]> {
+    return this.memStorage.getProfessionals();
+  }
+
+  async getProfessionalsBySpecialization(specialization: string): Promise<Professional[]> {
+    return this.memStorage.getProfessionalsBySpecialization(specialization);
+  }
+
+  async getProfessional(id: string): Promise<Professional | undefined> {
+    return this.memStorage.getProfessional(id);
+  }
+
+  async createProfessional(professional: InsertProfessional): Promise<Professional> {
+    return this.memStorage.createProfessional(professional);
+  }
+
+  async getBookings(): Promise<Booking[]> {
+    return this.memStorage.getBookings();
+  }
+
+  async getBookingsByUser(userId: string): Promise<Booking[]> {
+    return this.memStorage.getBookingsByUser(userId);
+  }
+
+  async getBooking(id: string): Promise<Booking | undefined> {
+    return this.memStorage.getBooking(id);
+  }
+
+  async createBooking(booking: InsertBooking): Promise<Booking> {
+    return this.memStorage.createBooking(booking);
+  }
+
+  async updateBookingStatus(id: string, status: string): Promise<Booking | undefined> {
+    return this.memStorage.updateBookingStatus(id, status);
+  }
+}
+
+export const storage = new DatabaseStorage();

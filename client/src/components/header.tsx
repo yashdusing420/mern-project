@@ -1,11 +1,23 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { MapPin, Menu, X } from "lucide-react";
+import { MapPin, Menu, X, User, LogOut } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { AuthDialog } from "./auth-dialog";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Header() {
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const { user, isAuthenticated, logout, isLogoutPending } = useAuth();
+  const { toast } = useToast();
 
   const navItems = [
     { href: "/", label: "Home" },
@@ -13,6 +25,22 @@ export default function Header() {
     { href: "/professionals", label: "Professionals" },
     { href: "/booking", label: "Book Now" },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Logged out",
+        description: "You've been logged out successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
@@ -46,7 +74,25 @@ export default function Header() {
               <MapPin className="h-4 w-4 text-primary" />
               <span>Kharghar, Navi Mumbai</span>
             </div>
-            <Button>Login</Button>
+            
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center space-x-2">
+                    <User className="h-4 w-4" />
+                    <span>{user?.username}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleLogout} disabled={isLogoutPending}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    {isLogoutPending ? "Logging out..." : "Logout"}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button onClick={() => setAuthDialogOpen(true)}>Login</Button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -90,12 +136,31 @@ export default function Header() {
                 <span>Kharghar, Navi Mumbai</span>
               </div>
               <div className="px-3 py-2">
-                <Button className="w-full">Login</Button>
+                {isAuthenticated ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2 text-sm text-slate-600">
+                      <User className="h-4 w-4" />
+                      <span>Welcome, {user?.username}</span>
+                    </div>
+                    <Button 
+                      onClick={handleLogout} 
+                      disabled={isLogoutPending}
+                      variant="outline" 
+                      className="w-full"
+                    >
+                      {isLogoutPending ? "Logging out..." : "Logout"}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button onClick={() => setAuthDialogOpen(true)} className="w-full">Login</Button>
+                )}
               </div>
             </div>
           </div>
         )}
       </div>
+      
+      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </header>
   );
 }
