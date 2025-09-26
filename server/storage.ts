@@ -83,8 +83,8 @@ export class MemStorage {
         reviewCount: 2100
       },
       {
-        name: "Repair",
-        description: "AC repair, plumbing, electrical work, appliance repair",
+        name: "electrician",
+        description: "AC repair, , electrical work, appliance repair",
         icon: "tools",
         image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250",
         startingPrice: "199",
@@ -101,8 +101,8 @@ export class MemStorage {
         reviewCount: 3200
       },
       {
-        name: "Home Care",
-        description: "Painting, carpentry, pest control, home security installation",
+        name: "carpentar",
+        description: "all types of carpentry work",
         icon: "home",
         image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250",
         startingPrice: "499",

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation as useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { MapPin, Menu, X, User, LogOut } from "lucide-react";
 import {
@@ -11,11 +11,14 @@ import {
 import { AuthDialog } from "./auth-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "@/hooks/useLocation";  // ✅ geolocation hook
 
 export default function Header() {
-  const [location] = useLocation();
+  const [location] = useRoute(); // from wouter (for routing)
+  const { location: userLocation, error } = useLocation(); // ✅ GPS
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const { user, isAuthenticated, logout, isLogoutPending } = useAuth();
   const { toast } = useToast();
 
@@ -42,6 +45,32 @@ export default function Header() {
     }
   };
 
+  // ✅ Boundaries for Kharghar
+  const isInKharghar = (lat: number, lng: number) =>
+    lat > 19.01 && lat < 19.06 && lng > 73.05 && lng < 73.09;
+
+  // ✅ Handle "Use My Location"
+  const handleUseLocation = () => {
+    if (userLocation) {
+      if (isInKharghar(userLocation.lat, userLocation.lng)) {
+        toast({
+          title: "✅ Location Confirmed",
+          description: "You are in Kharghar.",
+        });
+      } else {
+        setShowPopup(true);
+      }
+    }
+  };
+
+  const renderLocation = () => {
+    if (userLocation) {
+      return `${userLocation.lat.toFixed(3)}, ${userLocation.lng.toFixed(3)}`;
+    }
+    if (error) return "Location unavailable";
+    return "Detecting...";
+  };
+
   return (
     <header className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,7 +78,9 @@ export default function Header() {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <Link href="/">
-                <h1 className="text-2xl font-bold text-primary cursor-pointer">ServiceHub</h1>
+                <h1 className="text-2xl font-bold text-primary cursor-pointer">
+                  ServiceHub
+                </h1>
               </Link>
             </div>
             <nav className="hidden md:ml-10 md:flex space-x-8">
@@ -70,11 +101,15 @@ export default function Header() {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
+            {/* ✅ Dynamic location + button */}
             <div className="flex items-center space-x-2 text-sm text-slate-600">
               <MapPin className="h-4 w-4 text-primary" />
-              <span>Kharghar, Navi Mumbai</span>
+              <span>{renderLocation()}</span>
+              <Button variant="outline" size="sm" onClick={handleUseLocation}>
+                Use My Location
+              </Button>
             </div>
-            
+
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -133,7 +168,7 @@ export default function Header() {
             <div className="mt-4 pt-4 border-t border-slate-200">
               <div className="flex items-center space-x-2 text-sm text-slate-600 px-3 py-2">
                 <MapPin className="h-4 w-4 text-primary" />
-                <span>Kharghar, Navi Mumbai</span>
+                <span>{renderLocation()}</span>
               </div>
               <div className="px-3 py-2">
                 {isAuthenticated ? (
@@ -159,7 +194,20 @@ export default function Header() {
           </div>
         )}
       </div>
-      
+
+      {/* 🚨 Popup if outside Kharghar */}
+      {showPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-lg font-semibold">⚠ Service Unavailable</h2>
+            <p className="mt-2">Currently, services are only available in Kharghar.</p>
+            <Button onClick={() => setShowPopup(false)} className="mt-4">
+              Close
+            </Button>
+          </div>
+        </div>
+      )}
+
       <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </header>
   );

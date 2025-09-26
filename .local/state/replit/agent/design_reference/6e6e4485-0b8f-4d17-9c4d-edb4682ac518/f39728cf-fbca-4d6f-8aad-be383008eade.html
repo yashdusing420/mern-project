@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ServiceHub - Home Services Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#1E40AF',
+                        accent: '#F59E0B'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="font-inter bg-slate-50">
+
+<!-- @COMPONENT: Header -->
+<header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <h1 class="text-2xl font-bold text-primary">ServiceHub</h1>
+                </div>
+                <nav class="hidden md:ml-10 md:flex space-x-8">
+                    <a href="#" class="text-slate-700 hover:text-primary transition-colors">Home</a>
+                    <a href="#" class="text-slate-700 hover:text-primary transition-colors">Services</a>
+                    <a href="#" class="text-slate-700 hover:text-primary transition-colors">How it Works</a>
+                    <a href="#" class="text-slate-700 hover:text-primary transition-colors">Contact</a>
+                </nav>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-4">
+                <div class="flex items-center space-x-2 text-sm text-slate-600">
+                    <i class="fas fa-map-marker-alt text-primary"></i>
+                    <span data-bind="userLocation">Kharghar, Navi Mumbai</span>
+                </div>
+                <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition-colors">
+                    Login
+                </button>
+            </div>
+
+            <!-- Mobile menu button -->
+            <div class="md:hidden">
+                <button class="text-slate-700 hover:text-primary" data-event="click:toggleMobileMenu">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- @END_COMPONENT: Header -->
+
+<!-- @COMPONENT: Hero Section -->
+<section class="bg-gradient-to-br from-primary to-secondary text-white py-16 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="text-4xl lg:text-6xl font-bold leading-tight mb-6">
+                    Home Services at Your Doorstep
+                </h1>
+                <p class="text-xl mb-8 text-blue-100">
+                    Book trusted professionals for cleaning, repairs, beauty, and more in Kharghar
+                </p>
+                
+                <!-- Search Bar -->
+                <div class="bg-white p-4 rounded-xl shadow-lg">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="flex-1">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-3 top-3 text-slate-400"></i>
+                                <input 
+                                    type="text" 
+                                    placeholder="Search for services..."
+                                    class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-slate-700"
+                                    data-bind="searchQuery"
+                                />
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="relative">
+                                <i class="fas fa-map-marker-alt absolute left-3 top-3 text-slate-400"></i>
+                                <select class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-slate-700" data-bind="selectedLocation">
+                                    <option>Kharghar</option>
+                                    <option>Vashi</option>
+                                    <option>Belapur</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="bg-accent hover:bg-yellow-600 text-white px-8 py-2 rounded-lg font-semibold transition-colors" data-event="click:handleSearch">
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hidden lg:block">
+                <!-- Professional service worker illustration -->
+                <div class="relative">
+                    <!-- Professional home service worker with tools -->
+                    <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
+                         alt="Professional home service worker" 
+                         class="rounded-2xl shadow-2xl w-full h-auto" data-mock-image="true" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- @END_COMPONENT: Hero Section -->
+
+<!-- @COMPONENT: Service Categories -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl lg:text-4xl font-bold text-slate-800 mb-4">Our Services</h2>
+            <p class="text-xl text-slate-600 max-w-2xl mx-auto">Professional home services delivered by verified experts</p>
+        </div>
+
+        <!-- @MAP: serviceCategories.map(category => ( -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Cleaning Services -->
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow duration-300 overflow-hidden group" data-event="click:navigateToCategory" data-category="cleaning">
+                <!-- Professional cleaning service -->
+                <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=250" 
+                     alt="Professional cleaning service" 
+                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
+                <div class="p-6">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i class="fas fa-broom text-primary text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800 ml-3">Cleaning</h3>
+                    </div>
+                    <p class="text-slate-600 mb-4">Professional home cleaning, deep cleaning, bathroom & kitchen cleaning</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-primary">Starting ₹299</span>
+                        <span class="text-xs text-slate-500">4.8 ⭐ (2.1k reviews)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Repair Services -->
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow duration-300 overflow-hidden group" data-event="click:navigateToCategory" data-category="repair">
+                <!-- Professional repair technician -->
+                <img src="https://images.unsplash.com/photo-1621905251918-48416bd8575a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=250" 
+                     alt="Professional repair technician" 
+                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
+                <div class="p-6">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-amber-100 p-3 rounded-full">
+                            <i class="fas fa-tools text-accent text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800 ml-3">Repair</h3>
+                    </div>
+                    <p class="text-slate-600 mb-4">AC repair, plumbing, electrical work, appliance repair</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-primary">Starting ₹199</span>
+                        <span class="text-xs text-slate-500">4.7 ⭐ (1.8k reviews)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Beauty Services -->
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow duration-300 overflow-hidden group" data-event="click:navigateToCategory" data-category="beauty">
+                <!-- Professional beauty specialist -->
+                <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=250" 
+                     alt="Professional beauty specialist" 
+                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
+                <div class="p-6">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-pink-100 p-3 rounded-full">
+                            <i class="fas fa-cut text-pink-500 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800 ml-3">Beauty</h3>
+                    </div>
+                    <p class="text-slate-600 mb-4">Salon at home, facial, hair care, nail care, threading</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-primary">Starting ₹399</span>
+                        <span class="text-xs text-slate-500">4.9 ⭐ (3.2k reviews)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Home Services -->
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow duration-300 overflow-hidden group" data-event="click:navigateToCategory" data-category="home">
+                <!-- Professional home service provider -->
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=250" 
+                     alt="Professional home service provider" 
+                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
+                <div class="p-6">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i class="fas fa-home text-green-500 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800 ml-3">Home Care</h3>
+                    </div>
+                    <p class="text-slate-600 mb-4">Painting, carpentry, pest control, home security installation</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-primary">Starting ₹499</span>
+                        <span class="text-xs text-slate-500">4.6 ⭐ (1.5k reviews)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_MAP )) -->
+    </div>
+</section>
+<!-- @END_COMPONENT: Service Categories -->
+
+<!-- @COMPONENT: How It Works -->
+<section class="py-16 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl lg:text-4xl font-bold text-slate-800 mb-4">How It Works</h2>
+            <p class="text-xl text-slate-600">Book services in just 3 simple steps</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                    1
+                </div>
+                <h3 class="text-xl font-semibold text-slate-800 mb-3">Choose Service</h3>
+                <p class="text-slate-600">Select from our wide range of professional home services</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                    2
+                </div>
+                <h3 class="text-xl font-semibold text-slate-800 mb-3">Book Appointment</h3>
+                <p class="text-slate-600">Select your preferred date, time and professional</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                    3
+                </div>
+                <h3 class="text-xl font-semibold text-slate-800 mb-3">Relax & Enjoy</h3>
+                <p class="text-slate-600">Our verified professional will arrive at your doorstep on time</p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- @END_COMPONENT: How It Works -->
+
+<!-- @COMPONENT: Featured Professionals -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl lg:text-4xl font-bold text-slate-800 mb-4">Top Professionals</h2>
+            <p class="text-xl text-slate-600">Verified experts ready to serve you</p>
+        </div>
+
+        <!-- @MAP: professionals.map(professional => ( -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Professional 1 -->
+            <div class="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden hover:shadow-xl transition-shadow" data-event="click:viewProfile" data-professional-id="1">
+                <!-- Professional cleaner headshot -->
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=300" 
+                     alt="Professional cleaner" 
+                     class="w-full h-48 object-cover" />
+                <div class="p-4">
+                    <h3 class="font-semibold text-slate-800 mb-1" data-mock="true">Rahul Sharma</h3>
+                    <p class="text-sm text-slate-600 mb-2">Cleaning Specialist</p>
+                    <div class="flex items-center mb-2">
+                        <div class="flex text-yellow-400">
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                        </div>
+                        <span class="text-xs text-slate-500 ml-1">(4.9) 150 reviews</span>
+                    </div>
+                    <p class="text-xs text-slate-500">5+ years experience</p>
+                </div>
+            </div>
+
+            <!-- Professional 2 -->
+            <div class="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden hover:shadow-xl transition-shadow" data-event="click:viewProfile" data-professional-id="2">
+                <!-- Professional repair technician -->
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=300" 
+                     alt="Professional repair technician" 
+                     class="w-full h-48 object-cover" />
+                <div class="p-4">
+                    <h3 class="font-semibold text-slate-800 mb-1" data-mock="true">Amit Patel</h3>
+                    <p class="text-sm text-slate-600 mb-2">AC Repair Expert</p>
+                    <div class="flex items-center mb-2">
+                        <div class="flex text-yellow-400">
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                        </div>
+                        <span class="text-xs text-slate-500 ml-1">(4.8) 200 reviews</span>
+                    </div>
+                    <p class="text-xs text-slate-500">8+ years experience</p>
+                </div>
+            </div>
+
+            <!-- Professional 3 -->
+            <div class="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden hover:shadow-xl transition-shadow" data-event="click:viewProfile" data-professional-id="3">
+                <!-- Professional beauty specialist -->
+                <img src="https://pixabay.com/get/gda510405969898d0f21968878c9f8cc2cd3c5706d0b6932fcc4949a2bf43d4ad4928224783c505677160793b16a4d08d84114d4703107dcc519d4cf34db0faef_1280.png" 
+                     alt="Professional beauty specialist" 
+                     class="w-full h-48 object-cover" />
+                <div class="p-4">
+                    <h3 class="font-semibold text-slate-800 mb-1" data-mock="true">Priya Singh</h3>
+                    <p class="text-sm text-slate-600 mb-2">Beauty Specialist</p>
+                    <div class="flex items-center mb-2">
+                        <div class="flex text-yellow-400">
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                        </div>
+                        <span class="text-xs text-slate-500 ml-1">(4.9) 180 reviews</span>
+                    </div>
+                    <p class="text-xs text-slate-500">6+ years experience</p>
+                </div>
+            </div>
+
+            <!-- Professional 4 -->
+            <div class="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden hover:shadow-xl transition-shadow" data-event="click:viewProfile" data-professional-id="4">
+                <!-- Professional plumber -->
+                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=300" 
+                     alt="Professional plumber" 
+                     class="w-full h-48 object-cover" />
+                <div class="p-4">
+                    <h3 class="font-semibold text-slate-800 mb-1" data-mock="true">Suresh Kumar</h3>
+                    <p class="text-sm text-slate-600 mb-2">Plumbing Expert</p>
+                    <div class="flex items-center mb-2">
+                        <div class="flex text-yellow-400">
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="fas fa-star text-xs"></i>
+                            <i class="far fa-star text-xs"></i>
+                        </div>
+                        <span class="text-xs text-slate-500 ml-1">(4.7) 120 reviews</span>
+                    </div>
+                    <p class="text-xs text-slate-500">10+ years experience</p>
+                </div>
+            </div>
+        </div>
+        <!-- @END_MAP )) -->
+
+        <div class="text-center mt-10">
+            <button class="bg-primary text-white px-8 py-3 rounded-lg hover:bg-secondary transition-colors font-semibold" data-event="click:viewAllProfessionals">
+                View All Professionals
+            </button>
+        </div>
+    </div>
+</section>
+<!-- @END_COMPONENT: Featured Professionals -->
+
+<!-- @COMPONENT: Booking Modal -->
+<div id="bookingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" data-event="click:closeModal">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4" onclick="event.stopPropagation()">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-slate-800">Book Service</h3>
+                <button class="text-slate-400 hover:text-slate-600" data-event="click:closeModal">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form data-event="submit:handleBooking">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Service</label>
+                        <select class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="selectedService">
+                            <option data-mock="true">House Cleaning</option>
+                            <option data-mock="true">AC Repair</option>
+                            <option data-mock="true">Plumbing</option>
+                            <option data-mock="true">Beauty Service</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Date</label>
+                        <input type="date" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="selectedDate" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Time</label>
+                        <select class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="selectedTime">
+                            <option>9:00 AM - 11:00 AM</option>
+                            <option>11:00 AM - 1:00 PM</option>
+                            <option>2:00 PM - 4:00 PM</option>
+                            <option>4:00 PM - 6:00 PM</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Address</label>
+                        <textarea class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" rows="3" placeholder="Enter your complete address..." data-bind="address"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
+                        <input type="tel" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="+91 9876543210" data-bind="phoneNumber" />
+                    </div>
+                </div>
+
+                <div class="mt-6 flex space-x-3">
+                    <button type="button" class="flex-1 bg-slate-200 text-slate-700 py-3 rounded-lg hover:bg-slate-300 transition-colors font-semibold" data-event="click:closeModal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-primary text-white py-3 rounded-lg hover:bg-secondary transition-colors font-semibold">
+                        Book Now
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- @END_COMPONENT: Booking Modal -->
+
+<!-- @COMPONENT: Footer -->
+<footer class="bg-slate-800 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-2xl font-bold mb-4">ServiceHub</h3>
+                <p class="text-slate-300 mb-4">Your trusted partner for all home services in Kharghar and surrounding areas.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-slate-300 hover:text-white transition-colors">
+                        <i class="fab fa-facebook text-xl"></i>
+                    </a>
+                    <a href="#" class="text-slate-300 hover:text-white transition-colors">
+                        <i class="fab fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-slate-300 hover:text-white transition-colors">
+                        <i class="fab fa-instagram text-xl"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="font-semibold mb-4">Services</h4>
+                <ul class="space-y-2 text-slate-300">
+                    <li><a href="#" class="hover:text-white transition-colors">House Cleaning</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">AC Repair</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Plumbing</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Beauty Services</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Electrical Work</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-semibold mb-4">Company</h4>
+                <ul class="space-y-2 text-slate-300">
+                    <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Partner with Us</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Terms & Conditions</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-semibold mb-4">Contact</h4>
+                <ul class="space-y-2 text-slate-300">
+                    <li class="flex items-center">
+                        <i class="fas fa-map-marker-alt mr-2"></i>
+                        Kharghar, Navi Mumbai
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-phone mr-2"></i>
+                        +91 98765 43210
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-envelope mr-2"></i>
+                        hello@servicehub.com
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-700 mt-8 pt-8 text-center text-slate-300">
+            <p>&copy; 2024 ServiceHub. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+<!-- @END_COMPONENT: Footer -->
+
+<!-- Quick Book Button (Floating) -->
+<button class="fixed bottom-6 right-6 bg-accent hover:bg-yellow-600 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 z-40" data-event="click:openBookingModal">
+    <i class="fas fa-plus text-xl"></i>
+</button>
+
+<script>
+(() => {
+    // TODO: Implement actual booking functionality with backend API
+    
+    // Modal functionality
+    function openBookingModal() {
+        document.getElementById('bookingModal').classList.remove('hidden');
+    }
+    
+    function closeBookingModal() {
+        document.getElementById('bookingModal').classList.add('hidden');
+    }
+    
+    // Event listeners for mock functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Book now button clicks
+        const bookButtons = document.querySelectorAll('[data-event*="openBookingModal"]');
+        bookButtons.forEach(button => {
+            button.addEventListener('click', openBookingModal);
+        });
+        
+        // Close modal buttons
+        const closeButtons = document.querySelectorAll('[data-event*="closeModal"]');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', closeBookingModal);
+        });
+        
+        // Service category clicks
+        const categoryCards = document.querySelectorAll('[data-event*="navigateToCategory"]');
+        categoryCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // TODO: Navigate to category page
+                console.log('Navigate to category:', this.dataset.category);
+            });
+        });
+        
+        // Professional profile clicks
+        const profileCards = document.querySelectorAll('[data-event*="viewProfile"]');
+        profileCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // TODO: Navigate to professional profile
+                console.log('View profile:', this.dataset.professionalId);
+            });
+        });
+        
+        // Search functionality
+        const searchButton = document.querySelector('[data-event*="handleSearch"]');
+        if (searchButton) {
+            searchButton.addEventListener('click', function() {
+                // TODO: Implement search functionality
+                console.log('Search triggered');
+            });
+        }
+        
+        // Booking form submission
+        const bookingForm = document.querySelector('[data-event*="handleBooking"]');
+        if (bookingForm) {
+            bookingForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // TODO: Submit booking to backend
+                alert('Booking request submitted! (This is a demo)');
+                closeBookingModal();
+            });
+        }
+    });
+})();
+</script>
+
+<!-- @STATE: isBookingModalOpen:boolean = false -->
+<!-- @STATE: selectedService:string = "" -->
+<!-- @STATE: selectedDate:string = "" -->
+<!-- @STATE: selectedTime:string = "" -->
+<!-- @STATE: searchQuery:string = "" -->
+<!-- @STATE: selectedLocation:string = "Kharghar" -->
+
+</body>
+</html>
