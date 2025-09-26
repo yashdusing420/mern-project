@@ -108,6 +108,24 @@ export class MemStorage {
         startingPrice: "499",
         rating: "4.6",
         reviewCount: 1500
+      },
+      {
+        name: "Painter",
+        description: "Professional painting services, interior & exterior wall painting, texture painting",
+        icon: "brush",
+        image: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250",
+        startingPrice: "349",
+        rating: "4.7",
+        reviewCount: 1200
+      },
+      {
+        name: "Plumber",
+        description: "Plumbing services, pipe repair, drain cleaning, bathroom & kitchen plumbing",
+        icon: "wrench",
+        image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250",
+        startingPrice: "249",
+        rating: "4.8",
+        reviewCount: 1650
       }
     ];
 
