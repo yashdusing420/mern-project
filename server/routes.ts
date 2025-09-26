@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
+import { rateLimit } from "express-rate-limit";
 import { storage } from "./storage";
 import { insertBookingSchema, loginSchema, registerSchema } from "@shared/schema";
 import { z } from "zod";
@@ -19,11 +20,16 @@ declare module "express-session" {
 
 // Session configuration
 function setupSession(app: Express) {
+  // Require SESSION_SECRET in production
+  if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
+    throw new Error('SESSION_SECRET environment variable is required in production');
+  }
+
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
     createTableIfMissing: false,
-    ttl: 7 * 24 * 60 * 60 * 1000, // 1 week
+    ttl: 7 * 24 * 60 * 60, // 1 week in seconds (not milliseconds)
     tableName: "sessions",
   });
 
@@ -35,7 +41,7 @@ function setupSession(app: Express) {
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
     },
   }));
@@ -52,8 +58,17 @@ function requireAuth(req: Express.Request, res: Express.Response, next: Express.
 export async function registerRoutes(app: Express): Promise<Server> {
   setupSession(app);
 
+  // Rate limiting for authentication endpoints
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // limit each IP to 5 requests per windowMs
+    message: { message: "Too many authentication attempts, please try again later." },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
   // Authentication Routes
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", authLimiter, async (req, res) => {
     try {
       const credentials = loginSchema.parse(req.body);
       const user = await storage.authenticateUser(credentials);
@@ -62,7 +77,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      req.session.user = { id: user.id, email: user.email, username: user.username };
+      // Regenerate session to prevent session fixation
+      await new Promise<void>((resolve, reject) => {
+        req.session.regenerate((err) => {
+          if (err) {
+            reject(err);
+          } else {
+            req.session.user = { id: user.id, email: user.email, username: user.username };
+            resolve();
+          }
+        });
+      });
+      
       res.json({ message: "Login successful", user: { id: user.id, email: user.email, username: user.username } });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -72,7 +98,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/register", async (req, res) => {
+  app.post("/api/auth/register", authLimiter, async (req, res) => {
     try {
       const userData = registerSchema.parse(req.body);
       
@@ -83,7 +109,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const user = await storage.registerUser(userData);
-      req.session.user = { id: user.id, email: user.email, username: user.username };
+      
+      // Regenerate session after registration
+      await new Promise<void>((resolve, reject) => {
+        req.session.regenerate((err) => {
+          if (err) {
+            reject(err);
+          } else {
+            req.session.user = { id: user.id, email: user.email, username: user.username };
+            resolve();
+          }
+        });
+      });
       
       res.status(201).json({ 
         message: "Registration successful", 

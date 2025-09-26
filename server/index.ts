@@ -1,10 +1,20 @@
 import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
+import helmet from "helmet";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { exec } from "child_process";
 
 const app = express();
+
+// Set trust proxy for production deployment behind load balancer
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
+// Security middleware
+app.use(helmet());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
