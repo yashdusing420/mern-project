@@ -54,7 +54,7 @@ export interface IStorage {
   getBookings(): Promise<Booking[]>;
   getBookingsByUser(userId: string): Promise<Booking[]>;
   getBooking(id: string): Promise<Booking | undefined>;
-  createBooking(booking: InsertBooking): Promise<Booking>;
+  createBooking(booking: InsertBooking & { userId: string }): Promise<Booking>;
   updateBookingStatus(id: string, status: string): Promise<Booking | undefined>;
 }
 
@@ -296,7 +296,7 @@ export class MemStorage {
     return this.bookings.get(id);
   }
 
-  async createBooking(insertBooking: InsertBooking): Promise<Booking> {
+  async createBooking(insertBooking: InsertBooking & { userId: string }): Promise<Booking> {
     const id = randomUUID();
     const booking: Booking = { 
       ...insertBooking, 

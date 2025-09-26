@@ -95,6 +95,7 @@ export const insertProfessionalSchema = createInsertSchema(professionals).omit({
 
 export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
+  userId: true,
   createdAt: true
 });
 

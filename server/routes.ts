@@ -6,6 +6,17 @@ import { storage } from "./storage";
 import { insertBookingSchema, loginSchema, registerSchema } from "@shared/schema";
 import { z } from "zod";
 
+// Extend session types
+declare module "express-session" {
+  interface SessionData {
+    user?: {
+      id: string;
+      email: string;
+      username: string;
+    };
+  }
+}
+
 // Session configuration
 function setupSession(app: Express) {
   const pgStore = connectPg(session);
@@ -23,14 +34,15 @@ function setupSession(app: Express) {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false, // Set to true in production with HTTPS
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
     },
   }));
 }
 
 // Authentication middleware
-function requireAuth(req: any, res: any, next: any) {
+function requireAuth(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
   if (!req.session.user) {
     return res.status(401).json({ message: "Authentication required" });
   }
@@ -85,7 +97,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/logout", (req, res) => {
+  app.post("/api/auth/logout", requireAuth, (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         return res.status(500).json({ message: "Logout failed" });
@@ -185,27 +197,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bookings
-  app.get("/api/bookings", async (req, res) => {
+  app.get("/api/bookings", requireAuth, async (req, res) => {
     try {
-      const { userId } = req.query;
-      let bookings;
-      
-      if (userId && typeof userId === 'string') {
-        bookings = await storage.getBookingsByUser(userId);
-      } else {
-        bookings = await storage.getBookings();
-      }
-      
+      // Users can only see their own bookings
+      const userId = req.session.user.id;
+      const bookings = await storage.getBookingsByUser(userId);
       res.json(bookings);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch bookings" });
     }
   });
 
-  app.post("/api/bookings", async (req, res) => {
+  app.post("/api/bookings", requireAuth, async (req, res) => {
     try {
       const bookingData = insertBookingSchema.parse(req.body);
-      const booking = await storage.createBooking(bookingData);
+      // Derive userId from authenticated session, not from request body
+      const bookingWithUserId = {
+        ...bookingData,
+        userId: req.session.user.id
+      };
+      const booking = await storage.createBooking(bookingWithUserId);
       res.status(201).json(booking);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -215,18 +226,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/bookings/:id/status", async (req, res) => {
+  app.patch("/api/bookings/:id/status", requireAuth, async (req, res) => {
     try {
       const { status } = req.body;
       if (!status || typeof status !== 'string') {
         return res.status(400).json({ message: "Status is required" });
       }
       
-      const booking = await storage.updateBookingStatus(req.params.id, status);
-      if (!booking) {
+      // First check if booking exists and belongs to user
+      const existingBooking = await storage.getBooking(req.params.id);
+      if (!existingBooking) {
         return res.status(404).json({ message: "Booking not found" });
       }
       
+      if (existingBooking.userId !== req.session.user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      const booking = await storage.updateBookingStatus(req.params.id, status);
       res.json(booking);
     } catch (error) {
       res.status(500).json({ message: "Failed to update booking status" });
